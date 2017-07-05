@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE struts PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd">
+
+<struts>
+    <package name="default" namespace="/" extends="struts-default">
+
+        <action name="save" class="actions.SaveCSVAction">
+            <result name="SUCCESS">
+               success.jsp
+               <!-- <param name="inputName">inputStream</param>
+                <param name="contentDisposition">attachment;filename="${filename}\"</param>-->
+            </result>
+        </action>
+
+        <action name="generateData" class="actions.SetGeneratedDataAction">
+            <result name="SUCCESS" type="redirect">success.jsp</result>
+        </action>
+
+        <!--<action name="test">
+            <result>/success.jsp</result>
+        </action>-->
+
+        <action name="ShowAllAction" class="actions.ShowAllAction">
+            <result name="SUCCESS" type="stream">
+                <param name="contentType">text/html</param>
+                <param name="inputName">inputStream</param>
+            </result>
+        </action>
+
+        <action name="showCallIdAction" class="actions.ShowCallIdAction">
+            <result name="SUCCESS" type="stream">
+                <param name="contentType">text/html</param>
+                <param name="inputName">inputStream</param>
+            </result>
+        </action>
+
+        <action name="showEventAction" class="actions.ShowEventAction">
+            <result name="SUCCESS" type="stream">
+                <param name="contentType">text/html</param>
+                <param name="inputName">inputStream</param>
+            </result>
+        </action>
+
+    </package>
+</struts>

@@ -1,0 +1,15 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <typeAliases>
+        <typeAlias alias="Call" type="models.Call"/>
+        <typeAlias alias="Event" type="models.Event"/>
+        <typeAlias alias="CallType" type="models.CallType"/>
+    </typeAliases>
+
+    <mappers>
+        <mapper resource="mappersMyBatis/CallMapper.xml"/>
+        <mapper resource="mappersMyBatis/EventMapper.xml"/>
+    </mappers>
+</configuration>

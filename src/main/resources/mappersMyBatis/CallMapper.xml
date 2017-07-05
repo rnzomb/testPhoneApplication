@@ -1,0 +1,80 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mapperInterfaces.CallMapper">
+
+    <resultMap id="callResultMap" type="Call">
+        <result property="recordId" column="record_id"/>
+        <result property="callId" column="call_id"/>
+        <result property="caller" column="caller"/>
+        <result property="receiver" column="receiver"/>
+        <result property="eventName" column="event_name"/>
+        <result property="recordDate" column="record_date"/>
+    </resultMap>
+
+    <resultMap id="countAllMap" type="int">
+        <result property="count" column="count"/>
+    </resultMap>
+
+    <resultMap id="countFilteredMap" type="int">
+        <result property="countFiltered" column="countFiltered"/>
+    </resultMap>
+
+    <resultMap id="getCallIdMap" type="int">
+        <result property="callId" column="call_Id"/>
+    </resultMap>
+
+    <resultMap id="callTypeMap" type="int">
+        <result property="eventCount" column="event_count"/>
+    </resultMap>
+
+    <select id="countAll" resultMap="countAllMap">
+        SELECT COUNT(*) AS count FROM t_call;
+    </select>
+
+    <select id="getAll" resultMap="callResultMap">
+        SELECT t_call.*, event_name, record_date, call_id FROM t_call
+        JOIN t_event USING (record_id)
+        JOIN t_event_type ON t_event.record_event_id=t_event_type.event_id
+        ${param5}
+        ORDER BY ${param1} ${param2}, record_id ASC
+        LIMIT #{param3}, #{param4};
+    </select>
+
+    <select id="getAllSave" resultMap="callResultMap">
+        SELECT t_call.*, event_name, record_date, call_id FROM t_call
+        JOIN t_event USING (record_id)
+        JOIN t_event_type ON t_event.record_event_id=t_event_type.event_id
+        ${param3}
+        ORDER BY ${param1} ${param2}, record_id ASC
+    </select>
+
+    <select id="countAllFiltered" parameterType="String" resultMap="countFilteredMap">
+        SELECT COUNT(record_event_id) AS countFiltered FROM t_event
+        JOIN t_event_type ON t_event.record_event_id=t_event_type.event_id
+        JOIN t_call USING (record_id)
+        ${_parameter}
+    </select>
+
+    <select id="getCallId" parameterType="String" resultMap="getCallIdMap">
+        SELECT call_id FROM `t_event` WHERE record_date = #{param1};
+    </select>
+
+    <select id="getCallById" parameterType="int" resultMap="callResultMap">
+        SELECT caller, receiver, event_name, record_date, call_id FROM t_event
+        JOIN t_event_type ON t_event.record_event_id=t_event_type.EVENT_ID
+        JOIN t_call USING (record_id)
+        WHERE t_event.call_id = #{callId}
+        ORDER BY record_date ASC;
+    </select>
+
+    <select id="getTypeByCallId" parameterType="int" resultMap="callTypeMap">
+        SELECT COUNT(record_event_id) AS "event_count" from t_event WHERE call_id = #{callId};
+    </select>
+
+    <insert id='insertCall' parameterType='Call' useGeneratedKeys='true' keyProperty='recordId'>
+        INSERT INTO t_call (caller, receiver)
+        VALUES(#{caller}, #{receiver})
+    </insert>
+</mapper>

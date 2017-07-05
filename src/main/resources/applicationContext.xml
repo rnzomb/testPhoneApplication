@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+
+    <context:property-placeholder location="classpath:jdbc.properties"/>
+
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="${jdbc.driver}" />
+        <property name="url" value="${jdbc.url}" />
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+    </bean>
+
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+
+    <bean id="sessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="typeAliasesPackage" value="models.Call" />
+        <property name="configLocation" value="classpath:myBatis.xml"/>
+    </bean>
+
+    <bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0" ref="sessionFactory" />
+    </bean>
+
+    <bean id="callMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="mapperInterfaces.CallMapper"/>
+        <property name="sqlSessionFactory" ref="sessionFactory"/>
+    </bean>
+
+    <bean id="eventMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="mapperInterfaces.EventMapper"/>
+        <property name="sqlSessionFactory" ref="sessionFactory"/>
+    </bean>
+
+    <bean id="callService" class="services.CallService">
+        <property name="callMapper" ref="callMapper"/>
+        <property name="sqlSession" ref="sqlSession"/>
+
+    </bean>
+
+    <bean id="eventService" class="services.EventService">
+        <property name="eventMapper" ref="eventMapper"/>
+        <property name="sqlSession" ref="sqlSession"/>
+    </bean>
+
+    <bean id="ShowAllAction" class="actions.ShowAllAction">
+        <property name="callService" ref="callService" />
+    </bean>
+
+    <bean id="showCallIdAction" class="actions.ShowCallIdAction">
+        <property name="callService" ref="callService" />
+    </bean>
+
+    <bean id="ShowEventAction" class="actions.ShowEventAction">
+        <property name="eventService" ref="eventService" />
+    </bean>
+
+    <bean id="setGeneratedDataAction" class="actions.SetGeneratedDataAction">
+        <property name="callService" ref="callService" />
+        <property name="eventService" ref="eventService" />
+    </bean>
+
+    <bean id="saveCSVAction" class="actions.SaveCSVAction">
+        <property name="callService" ref="callService" />
+    </bean>
+
+
+
+
+
+</beans>

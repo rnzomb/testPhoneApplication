@@ -1,0 +1,44 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mapperInterfaces.EventMapper">
+
+    <resultMap id="eventResultMap" type="Event">
+        <result property="caller" column="caller"/>
+        <result property="receiver" column="receiver"/>
+        <result property="recordEventId" column="record_event_id"/>
+        <result property="talkDuration" column="talk_duration"/>
+        <result property="recordDate" column="date_start"/>
+        <result property="callId" column="call_id"/>
+    </resultMap>
+
+    <resultMap id="eventCountResultMap" type="CallType">
+        <result property="eventCount" column="event_count"/>
+    </resultMap>
+
+    <select id="getDataByCaller" parameterType='int' resultMap="eventResultMap">
+        SELECT a.*, b.*, DATE_FORMAT (FROM_UNIXTIME(UNIX_TIMESTAMP(b.date_end) - UNIX_TIMESTAMP(a.date_start)), '%i:%S')  AS "talk_duration"
+        FROM
+        (SELECT record_date AS "date_start", call_id FROM t_event WHERE record_event_id LIKE "event_pick_up") a
+        INNER JOIN
+        (SELECT caller, receiver, record_date AS "date_end", call_id FROM t_event INNER JOIN t_call USING(record_id)
+        WHERE record_event_id LIKE "event_hang_up" AND t_call.caller = #{caller}) b
+        on a.call_id=b.call_id
+    </select>
+
+    <select id="getTypesByCaller" parameterType='int' resultMap="eventCountResultMap">
+        SELECT call_id, COUNT(call_id) AS "event_count"
+        FROM t_call JOIN t_event USING (record_id)
+        JOIN t_event_type ON t_event.record_event_id=t_event_type.event_id
+        WHERE t_call.caller = #{caller}
+        GROUP BY call_id
+    </select>
+
+    <insert id='insertEvent' parameterType='Event' useGeneratedKeys='true' keyProperty='recordId'>
+        INSERT INTO T_EVENT(record_event_id, record_date, call_id)
+        VALUES(#{recordEventId}, #{recordDate}, #{callId})
+    </insert>
+
+
+</mapper>
